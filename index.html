@@ -67,7 +67,6 @@ async function send() {
   const text = msgBox.value.trim();
   if (!text) return;
 
-  // Add user message
   chat.innerHTML += `
     <div class="bubble user">
       <b>You:</b> ${text}
@@ -76,40 +75,33 @@ async function send() {
 
   msgBox.value = "";
 
-  // Add AI thinking bubble
+  // Thinking animation
   const thinkingId = "thinking_" + Date.now();
 
   chat.innerHTML += `
     <div class="bubble ai" id="${thinkingId}">
-      <b>AI:</b> Thinking.
+      <b>AI:</b> Thinking
     </div>
   `;
 
   chat.scrollTop = chat.scrollHeight;
 
-  // 🔄 Thinking animation loop
-  let dots = 1;
+  let dots = 0;
 
-  const thinkingInterval = setInterval(() => {
+  const loop = setInterval(() => {
 
-    dots++;
+    dots = (dots + 1) % 4;
 
-    if (dots > 3) dots = 1;
-
-    const dotText = ".".repeat(dots);
-
-    const el = document.getElementById(thinkingId);
-
-    if (el) {
-      el.innerHTML = `<b>AI:</b> Thinking${dotText}`;
-    }
+    document.getElementById(thinkingId)
+      .innerHTML =
+      "<b>AI:</b> Thinking" + ".".repeat(dots);
 
   }, 500);
 
   try {
 
     const res = await fetch(
-      "https://aichat.isaazizi1234.workers.dev",
+      "https://aichat.isaazizi1234.workers.dev/",
       {
         method: "POST",
         headers: {
@@ -123,26 +115,27 @@ async function send() {
 
     const data = await res.json();
 
-    // Stop animation
-    clearInterval(thinkingInterval);
+    clearInterval(loop);
 
-    document.getElementById(thinkingId).innerHTML =
+    document.getElementById(thinkingId)
+      .innerHTML =
       `<b>AI:</b> ${data.reply}`;
-
-    chat.scrollTop = chat.scrollHeight;
 
   }
 
   catch (err) {
 
-    clearInterval(thinkingInterval);
+    clearInterval(loop);
 
-    document.getElementById(thinkingId).innerHTML =
+    document.getElementById(thinkingId)
+      .innerHTML =
       "<b>AI:</b> Connection error";
 
     console.error(err);
 
   }
+
+  chat.scrollTop = chat.scrollHeight;
 
 }
 
