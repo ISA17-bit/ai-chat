@@ -31,7 +31,7 @@
       chat.scrollTop = chat.scrollHeight;
 
       try {
-        const res = await fetch("https://aichat.isaazizi1234.workers.dev/chat", {
+        const res = await fetch("https://aichat.isaazizi1234.workers.dev", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: text })
