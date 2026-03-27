@@ -2,50 +2,151 @@
 <html>
 <head>
   <title>Personal AI Chat</title>
+
   <style>
-    body { font-family: Arial; background: #111; color: white; padding: 10px; }
-    #chat { height: 400px; overflow-y: auto; border: 1px solid gray; padding: 10px; background: black; margin-bottom: 10px; }
-    input { width: 70%; padding: 10px; }
-    button { padding: 10px; }
-    .bubble { margin: 5px 0; padding: 8px; border-radius: 5px; }
-    .user { background: #222; text-align: right; }
-    .ai { background: #333; text-align: left; }
-  </style>
-</head>
-<body>
-  <h2>Personal AI Chat v0.3</h2>
-  <div id="chat"></div>
-  <input id="msg" placeholder="Type message...">
-  <button onclick="send()">Send</button>
-
-  <script>
-    async function send() {
-      const msgBox = document.getElementById("msg");
-      const chat = document.getElementById("chat");
-      const text = msgBox.value.trim();
-      if (!text) return;
-
-      chat.innerHTML += `<div class="bubble user"><b>You:</b> ${text}</div>`;
-      msgBox.value = "";
-      chat.innerHTML += `<div class="bubble ai" id="thinking"><b>AI:</b> Thinking...</div>`;
-      chat.scrollTop = chat.scrollHeight;
-
-      try {
-        const res = await fetch("https://aichat.isaazizi1234.workers.dev", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text })
-        });
-
-        const data = await res.json();
-        document.getElementById("thinking").innerHTML = `<b>AI:</b> ${data.reply}`;
-        chat.scrollTop = chat.scrollHeight;
-
-      } catch (err) {
-        document.getElementById("thinking").innerHTML = "<b>AI:</b> Connection error";
-        console.error(err);
-      }
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      padding: 10px;
     }
-  </script>
+
+    #chat {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid gray;
+      padding: 10px;
+      background: black;
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 70%;
+      padding: 10px;
+    }
+
+    button {
+      padding: 10px;
+    }
+
+    .bubble {
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+    }
+
+    .user {
+      background: #222;
+      text-align: right;
+    }
+
+    .ai {
+      background: #333;
+      text-align: left;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<h2>Personal AI Chat</h2>
+
+<div id="chat"></div>
+
+<input id="msg" placeholder="Type message...">
+<button onclick="send()">Send</button>
+
+<script>
+
+async function send() {
+
+  const msgBox = document.getElementById("msg");
+  const chat = document.getElementById("chat");
+
+  const text = msgBox.value.trim();
+  if (!text) return;
+
+  // Add user message
+  chat.innerHTML += `
+    <div class="bubble user">
+      <b>You:</b> ${text}
+    </div>
+  `;
+
+  msgBox.value = "";
+
+  // Add AI thinking bubble
+  const thinkingId = "thinking_" + Date.now();
+
+  chat.innerHTML += `
+    <div class="bubble ai" id="${thinkingId}">
+      <b>AI:</b> Thinking.
+    </div>
+  `;
+
+  chat.scrollTop = chat.scrollHeight;
+
+  // 🔄 Thinking animation loop
+  let dots = 1;
+
+  const thinkingInterval = setInterval(() => {
+
+    dots++;
+
+    if (dots > 3) dots = 1;
+
+    const dotText = ".".repeat(dots);
+
+    const el = document.getElementById(thinkingId);
+
+    if (el) {
+      el.innerHTML = `<b>AI:</b> Thinking${dotText}`;
+    }
+
+  }, 500);
+
+  try {
+
+    const res = await fetch(
+      "https://aichat.isaazizi1234.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: text
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    // Stop animation
+    clearInterval(thinkingInterval);
+
+    document.getElementById(thinkingId).innerHTML =
+      `<b>AI:</b> ${data.reply}`;
+
+    chat.scrollTop = chat.scrollHeight;
+
+  }
+
+  catch (err) {
+
+    clearInterval(thinkingInterval);
+
+    document.getElementById(thinkingId).innerHTML =
+      "<b>AI:</b> Connection error";
+
+    console.error(err);
+
+  }
+
+}
+
+</script>
+
 </body>
 </html>
