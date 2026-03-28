@@ -141,7 +141,7 @@ const msgBox = document.getElementById("msg");
 
 let thinkingInterval;
 
-// Store conversation locally until refresh
+// Start with empty history
 let history = [];
 
 function scrollChat() {
@@ -164,11 +164,11 @@ async function send() {
   const text = msgBox.value.trim();
   if (!text) return;
 
-  // Show user message
+  // Show user bubble
   chat.innerHTML +=
     `<div class="bubble user"><b>You:</b> ${text}</div>`;
 
-  // Save user message
+  // Add user message correctly
   history.push({
     role: "user",
     content: text
@@ -177,7 +177,7 @@ async function send() {
   msgBox.value = "";
   autoResize();
 
-  // Create thinking bubble
+  // Thinking bubble
   const thinkingDiv = document.createElement("div");
 
   thinkingDiv.className = "bubble ai";
@@ -189,7 +189,6 @@ async function send() {
 
   scrollChat();
 
-  // Animate dots
   let dots = 1;
 
   thinkingInterval = setInterval(() => {
@@ -223,7 +222,7 @@ async function send() {
     thinkingDiv.innerHTML =
       `<b>AI:</b> ${data.reply}`;
 
-    // Save AI reply
+    // Add AI response properly
     history.push({
       role: "assistant",
       content: data.reply
@@ -244,7 +243,7 @@ async function send() {
   }
 }
 
-// Send on Enter
+// Enter to send
 msgBox.addEventListener(
   "keydown",
   function(e) {
