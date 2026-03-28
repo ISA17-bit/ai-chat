@@ -1,133 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#111111">
 <link rel="apple-touch-icon" href="logo.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">  
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
 <title>Personal AI Chat</title>
+
 <style>
-  /* Reset */
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
 
-  html, body {
-    width: 100%;
-    height: 100%;
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: white;
-    overflow: hidden; /* prevent scroll */
-  }
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  /* Header */
-  h2 {
-    text-align: center;
-    margin: 10px 0;
-    position: relative;
-  }
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+  overflow: hidden;
+}
 
-  /* Chat container */
-  #chat {
-    position: absolute;
-    top: 50px;
-    left: 0;
-    right: 0;
-    bottom: 80px;
-    margin: 0 20px;
-    background: black;
-    border: 2px solid white;
-    border-radius: 15px;
-    padding: 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    word-wrap: break-word;
-  }
+/* Header */
+h2 {
+  text-align: center;
+  margin: 10px 0;
+}
 
-  /* Bubble base */
-  .bubble {
-    padding: 10px 15px;
-    border-radius: 20px;
-    max-width: 70%;
-    word-wrap: break-word;
-    display: inline-block;
-  }
+/* Chat container */
+#chat {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 80px;
+  margin: 0 20px;
+  background: black;
+  border: 2px solid white;
+  border-radius: 15px;
+  padding: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
 
-  /* AI messages on left */
-  .ai {
-    background: #333;
-    align-self: flex-start;
-    text-align: left;
-  }
+/* Bubble base */
+.bubble {
+  padding: 10px 15px;
+  border-radius: 20px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
 
-  /* User messages on right */
-  .user {
-    background: #222;
-    align-self: flex-end;
-    text-align: right;
-  }
+/* AI left */
+.ai {
+  background: #333;
+  align-self: flex-start;
+}
 
-  /* Input container */
-  #input-container {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    display: flex;
-  }
+/* User right */
+.user {
+  background: #222;
+  align-self: flex-end;
+  text-align: right;
+}
 
-  #msg {
-    flex: 1;
-    padding: 12px 15px;
-    border-radius: 25px;
-    border: 2px solid white;
-    background: black;
-    color: white;
-    font-size: 16px;
-    outline: none;
-    resize: none;
-    line-height: 1.4;
-    min-height: 40px;
-  }
+/* Input container */
+#input-container {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+}
 
-  #send-btn {
-    margin-left: 20px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: none;
-    background: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+/* Textbox */
+#msg {
+  flex: 1;
+  padding: 12px 15px;
+  border-radius: 25px;
+  border: 2px solid white;
+  background: black;
+  color: white;
+  font-size: 16px;
+  outline: none;
+  resize: none;
+  line-height: 1.4;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+}
 
-  #send-btn svg {
-    width: 20px;
-    height: 20px;
-    fill: black;
-  }
+/* Send button */
+#send-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#send-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: black;
+}
+
 </style>
 </head>
+
 <body>
-<h2>Personal AI Chat
-</h2>
+
+<h2>Personal AI Chat</h2>
 
 <div id="chat"></div>
 
 <div id="input-container">
   <textarea id="msg" placeholder="Type message..." rows="1"></textarea>
+
   <button id="send-btn" onclick="send()">
     <svg viewBox="0 0 24 24">
       <path d="M12 2L5 9h4v7h6V9h4z"/>
@@ -136,71 +143,148 @@
 </div>
 
 <script>
+
 const chat = document.getElementById("chat");
 const msgBox = document.getElementById("msg");
+
 let thinkingInterval;
 
+/* Conversation memory */
+let history = [];
+
 function scrollChat() {
-  chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
+  chat.scrollTo({
+    top: chat.scrollHeight,
+    behavior: "smooth"
+  });
 }
 
 function autoResize() {
   msgBox.style.height = "auto";
-  msgBox.style.height = msgBox.scrollHeight + "px";
+  msgBox.style.height =
+    Math.min(msgBox.scrollHeight, 120) + "px";
 }
 
 msgBox.addEventListener("input", autoResize);
 
+/* Send message */
+
 async function send() {
+
   const text = msgBox.value.trim();
+
   if (!text) return;
 
-  chat.innerHTML += `<div class="bubble user"><b>You:</b> ${text}</div>`;
+  /* Show user message */
+
+  chat.innerHTML +=
+    `<div class="bubble user"><b>You:</b> ${text}</div>`;
+
+  /* Save user message */
+
+  history.push({
+    role: "user",
+    content: text
+  });
+
   msgBox.value = "";
   autoResize();
 
-  const thinkingDiv = document.createElement("div");
+  /* Thinking bubble */
+
+  const thinkingDiv =
+    document.createElement("div");
+
   thinkingDiv.className = "bubble ai";
-  thinkingDiv.innerHTML = "<b>AI:</b> Thinking.";
+
+  thinkingDiv.innerHTML =
+    "<b>AI:</b> Thinking.";
+
   chat.appendChild(thinkingDiv);
+
   scrollChat();
 
+  /* Thinking animation */
+
   let dots = 1;
+
   thinkingInterval = setInterval(() => {
+
     dots = dots < 3 ? dots + 1 : 1;
-    thinkingDiv.innerHTML = `<b>AI:</b> Thinking${'.'.repeat(dots)}`;
-    scrollChat();
+
+    thinkingDiv.innerHTML =
+      `<b>AI:</b> Thinking${'.'.repeat(dots)}`;
+
   }, 500);
 
   try {
-    const res = await fetch("https://aichat.isaazizi1234.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text })
-    });
+
+    const res = await fetch(
+      "https://aichat.isaazizi1234.workers.dev/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          messages: history
+        })
+
+      }
+    );
 
     const data = await res.json();
+
     clearInterval(thinkingInterval);
-    thinkingDiv.innerHTML = `<b>AI:</b> ${data.reply}`;
+
+    thinkingDiv.innerHTML =
+      `<b>AI:</b> ${data.reply}`;
+
+    /* Save AI reply */
+
+    history.push({
+      role: "assistant",
+      content: data.reply
+    });
+
     scrollChat();
-  } catch (err) {
-    clearInterval(thinkingInterval);
-    thinkingDiv.innerHTML = "<b>AI:</b> Connection error";
-    console.error(err);
-    scrollChat();
+
   }
+  catch (err) {
+
+    clearInterval(thinkingInterval);
+
+    thinkingDiv.innerHTML =
+      "<b>AI:</b> Connection error";
+
+    console.error(err);
+
+  }
+
 }
 
-// Send on Enter
-msgBox.addEventListener("keydown", function(e) {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    send();
+/* Enter to send */
+
+msgBox.addEventListener(
+  "keydown",
+  function(e) {
+
+    if (e.key === "Enter" && !e.shiftKey) {
+
+      e.preventDefault();
+
+      send();
+
+    }
+
   }
-});
+);
 
 msgBox.focus();
 autoResize();
+
 </script>
+
 </body>
 </html>
