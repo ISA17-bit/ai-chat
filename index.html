@@ -4,161 +4,167 @@
 <meta charset="UTF-8">
 <title>Personal AI Chat</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: white;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-    height: 100vh;
-  }
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+  margin: 0;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+}
 
-  h2 {
-    text-align: center;
-    margin-bottom: 10px;
-  }
+h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
 
-  #chat {
-    width: 100%;
-    max-width: 600px;
-    flex: 1;
-    overflow-y: auto;
-    border: 1px solid gray;
-    padding: 10px;
-    background: black;
-    margin-bottom: 10px;
-    border-radius: 15px;
-  }
+#chat {
+  flex: 1;
+  width: 100%;
+  max-width: 600px;
+  background: black;
+  border: 1px solid gray;
+  border-radius: 15px;
+  padding: 10px;
+  overflow-y: auto;
+  margin: 0 auto 10px;
+}
 
-  .bubble {
-    margin: 5px 0;
-    padding: 10px 15px;
-    border-radius: 20px;
-    max-width: 80%;
-    word-wrap: break-word;
-  }
+.bubble {
+  margin: 5px 0;
+  padding: 10px 15px;
+  border-radius: 20px;
+  max-width: 80%;
+  word-wrap: break-word;
+}
 
-  .user {
-    background: #222;
-    align-self: flex-end;
-    text-align: right;
-  }
+.user {
+  background: #222;
+  align-self: flex-end;
+  text-align: right;
+}
 
-  .ai {
-    background: #333;
-    align-self: flex-start;
-    text-align: left;
-  }
+.ai {
+  background: #333;
+  align-self: flex-start;
+  text-align: left;
+}
 
-  #input-container {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-  }
+#input-container {
+  display: flex;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
 
-  #msg {
-    width: 100%;
-    padding: 12px 15px 12px 55px; /* left space for button */
-    border-radius: 25px;
-    border: 2px solid white;
-    background: black;
-    color: white;
-    font-size: 16px;
-    outline: none;
-    box-sizing: border-box;
-  }
+#msg {
+  flex: 1;
+  padding: 12px 15px;
+  border-radius: 25px;
+  border: 2px solid white;
+  background: black;
+  color: white;
+  font-size: 16px;
+  outline: none;
+  resize: none; /* disables manual resize */
+}
 
-  #send-btn {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
-    background: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-  }
+#send-btn {
+  margin-left: 10px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
 
-  #send-btn svg {
-    width: 20px;
-    height: 20px;
-    fill: black;
-  }
+#send-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: black;
+}
 </style>
 </head>
 <body>
-  <h2>Personal AI Chat</h2>
-  <div id="chat"></div>
+<h2>Personal AI Chat</h2>
+<div id="chat"></div>
 
-  <div id="input-container">
-    <input id="msg" placeholder="Type message...">
-    <button id="send-btn" onclick="send()">
-      <!-- Upwards arrow -->
-      <svg viewBox="0 0 24 24">
-        <path d="M12 2L5 9h4v7h6V9h4z"/>
-      </svg>
-    </button>
-  </div>
+<div id="input-container">
+  <textarea id="msg" placeholder="Type message..." rows="1"></textarea>
+  <button id="send-btn" onclick="send()">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 2L5 9h4v7h6V9h4z"/>
+    </svg>
+  </button>
+</div>
 
 <script>
-  const chat = document.getElementById("chat");
-  const msgBox = document.getElementById("msg");
-  let thinkingInterval;
+const chat = document.getElementById("chat");
+const msgBox = document.getElementById("msg");
+let thinkingInterval;
 
-  function scrollChat() {
-    chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
-  }
+function scrollChat() {
+  chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
+}
 
-  async function send() {
-    const text = msgBox.value.trim();
-    if (!text) return;
+async function send() {
+  const text = msgBox.value.trim();
+  if (!text) return;
 
-    chat.innerHTML += `<div class="bubble user"><b>You:</b> ${text}</div>`;
-    msgBox.value = "";
+  chat.innerHTML += `<div class="bubble user"><b>You:</b> ${text}</div>`;
+  msgBox.value = "";
+  msgBox.rows = 1; // reset height if using textarea
 
-    const thinkingDiv = document.createElement("div");
-    thinkingDiv.className = "bubble ai";
-    thinkingDiv.innerHTML = "<b>AI:</b> Thinking.";
-    chat.appendChild(thinkingDiv);
+  const thinkingDiv = document.createElement("div");
+  thinkingDiv.className = "bubble ai";
+  thinkingDiv.innerHTML = "<b>AI:</b> Thinking.";
+  chat.appendChild(thinkingDiv);
+  scrollChat();
+
+  let dots = 1;
+  thinkingInterval = setInterval(() => {
+    dots = dots < 3 ? dots + 1 : 1;
+    thinkingDiv.innerHTML = `<b>AI:</b> Thinking${'.'.repeat(dots)}`;
     scrollChat();
+  }, 500);
 
-    // Animate "Thinking..."
-    let dots = 1;
-    thinkingInterval = setInterval(() => {
-      dots = dots < 3 ? dots + 1 : 1;
-      thinkingDiv.innerHTML = `<b>AI:</b> Thinking${'.'.repeat(dots)}`;
-      scrollChat();
-    }, 500);
+  try {
+    const res = await fetch("https://aichat.isaazizi1234.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
 
-    try {
-      const res = await fetch("https://aichat.isaazizi1234.workers.dev/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text })
-      });
-
-      const data = await res.json();
-      clearInterval(thinkingInterval);
-      thinkingDiv.innerHTML = `<b>AI:</b> ${data.reply}`;
-      scrollChat();
-    } catch (err) {
-      clearInterval(thinkingInterval);
-      thinkingDiv.innerHTML = "<b>AI:</b> Connection error";
-      console.error(err);
-      scrollChat();
-    }
+    const data = await res.json();
+    clearInterval(thinkingInterval);
+    thinkingDiv.innerHTML = `<b>AI:</b> ${data.reply}`;
+    scrollChat();
+  } catch (err) {
+    clearInterval(thinkingInterval);
+    thinkingDiv.innerHTML = "<b>AI:</b> Connection error";
+    console.error(err);
+    scrollChat();
   }
+}
 
-  // Auto-focus input
-  msgBox.focus();
+// Send message on Enter key
+msgBox.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault(); // prevent newline
+    send();
+  }
+});
+
+// Auto-focus input
+msgBox.focus();
 </script>
 </body>
 </html>
