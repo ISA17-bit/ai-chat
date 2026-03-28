@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>AI Chat</title>
+<title>Personal AI Chat</title>
 <style>
   /* Reset */
   * {
@@ -121,7 +121,7 @@
 </style>
 </head>
 <body>
-<h2> AI Chat
+<h2>Personal AI Chat
 </h2>
 
 <div id="chat"></div>
@@ -138,130 +138,69 @@
 <script>
 const chat = document.getElementById("chat");
 const msgBox = document.getElementById("msg");
-
 let thinkingInterval;
 
-// Start with empty history
-let history = [];
-
 function scrollChat() {
-  chat.scrollTo({
-    top: chat.scrollHeight,
-    behavior: "smooth"
-  });
+  chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
 }
 
 function autoResize() {
   msgBox.style.height = "auto";
-  msgBox.style.height =
-    Math.min(msgBox.scrollHeight, 120) + "px";
+  msgBox.style.height = msgBox.scrollHeight + "px";
 }
 
 msgBox.addEventListener("input", autoResize);
 
 async function send() {
-
   const text = msgBox.value.trim();
   if (!text) return;
 
-  // Show user bubble
-  chat.innerHTML +=
-    `<div class="bubble user"><b>You:</b> ${text}</div>`;
-
-  // Add user message correctly
-  history.push({
-    role: "user",
-    content: text
-  });
-
+  chat.innerHTML += `<div class="bubble user"><b>You:</b> ${text}</div>`;
   msgBox.value = "";
   autoResize();
 
-  // Thinking bubble
   const thinkingDiv = document.createElement("div");
-
   thinkingDiv.className = "bubble ai";
-
-  thinkingDiv.innerHTML =
-    "<b>AI:</b> Thinking.";
-
+  thinkingDiv.innerHTML = "<b>AI:</b> Thinking.";
   chat.appendChild(thinkingDiv);
-
   scrollChat();
 
   let dots = 1;
-
   thinkingInterval = setInterval(() => {
-
     dots = dots < 3 ? dots + 1 : 1;
-
-    thinkingDiv.innerHTML =
-      `<b>AI:</b> Thinking${'.'.repeat(dots)}`;
-
+    thinkingDiv.innerHTML = `<b>AI:</b> Thinking${'.'.repeat(dots)}`;
+    scrollChat();
   }, 500);
 
   try {
-
-    const res = await fetch(
-      "https://aichat.isaazizi1234.workers.dev/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          messages: history
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    clearInterval(thinkingInterval);
-
-    thinkingDiv.innerHTML =
-      `<b>AI:</b> ${data.reply}`;
-
-    // Add AI response properly
-    history.push({
-      role: "assistant",
-      content: data.reply
+    const res = await fetch("https://aichat.isaazizi1234.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
     });
 
-    scrollChat();
-
-  }
-  catch (err) {
-
+    const data = await res.json();
     clearInterval(thinkingInterval);
-
-    thinkingDiv.innerHTML =
-      "<b>AI:</b> Connection error";
-
+    thinkingDiv.innerHTML = `<b>AI:</b> ${data.reply}`;
+    scrollChat();
+  } catch (err) {
+    clearInterval(thinkingInterval);
+    thinkingDiv.innerHTML = "<b>AI:</b> Connection error";
     console.error(err);
-
+    scrollChat();
   }
 }
 
-// Enter to send
-msgBox.addEventListener(
-  "keydown",
-  function(e) {
-
-    if (e.key === "Enter" && !e.shiftKey) {
-
-      e.preventDefault();
-
-      send();
-
-    }
-
+// Send on Enter
+msgBox.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    send();
   }
-);
+});
 
 msgBox.focus();
 autoResize();
-
 </script>
 </body>
 </html>
