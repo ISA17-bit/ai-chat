@@ -3,7 +3,7 @@
 <head>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#2C2D31">
 <link rel="apple-touch-icon" href="logo.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,100 +14,393 @@
 <title>Personal AI Chat</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
-/* Reset */
+/* Your Custom Color Palette */
+:root {
+  --bg-color: #2C2D31;       /* Rich, Darker Gray Background */
+  --user-blue: #0080FF;      /* Vibrant User Blue */
+  --cyan-click: #00FFFF;     /* Pure Electric Cyan for Clicks */
+  --cyan-border: rgba(0, 255, 255, 0.25); /* Slightly transparent cyan circle */
+  --ai-bubble: #1E1F22;      /* Sleek Dark Bubble for AI */
+  --panel-bg: #1A1B1E;       /* Matching Dark Drawer Panel */
+}
+
+/* Global Reset */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
   width: 100%;
   height: 100%;
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: white;
+  font-family: 'Playfair Display', serif;
+  background-color: var(--bg-color);
+  color: #FFFFFF;
   overflow: hidden;
 }
 
-/* Header */
-h2 {
-  text-align: center;
-  margin: 10px 0;
+/* App Header Layout */
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  z-index: 10;
 }
 
-/* Chat container */
+h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* Menu Toggle Button */
+.menu-toggle {
+  position: absolute;
+  left: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.menu-toggle svg {
+  width: 26px;
+  height: 26px;
+  stroke: #FFFFFF;
+  transition: stroke 0.1s ease;
+}
+
+/* Active State: Turns Cyan on Click */
+.menu-toggle:active svg {
+  stroke: var(--cyan-click);
+}
+
+/* Left Sliding Drawer Menu */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100%;
+  background: var(--panel-bg);
+  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  color: #FFFFFF;
+}
+
+body.sidebar-open #sidebar {
+  transform: translateX(280px);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #3A3B40;
+  padding-bottom: 16px;
+}
+
+.sidebar-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.sidebar-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-close svg {
+  width: 24px;
+  height: 24px;
+  fill: #88888C;
+  transition: fill 0.1s ease;
+}
+
+.sidebar-close:active svg {
+  fill: var(--cyan-click);
+}
+
+.menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-btn {
+  background: #25262B;
+  border: 1px solid #3A3B40;
+  color: #FFFFFF;
+  padding: 14px 18px;
+  border-radius: 12px;
+  text-align: left;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+
+/* Menu Buttons turn Cyan on Click */
+.menu-btn:active {
+  background: var(--cyan-click);
+  color: #111111;
+  border-color: var(--cyan-click);
+}
+
+/* Background Dimmer Overlay */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(1px);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+body.sidebar-open #overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Seamless Chat Container - Bezel & Borders Completely Removed */
 #chat {
   position: absolute;
   top: 60px;
   left: 0;
   right: 0;
-  bottom: 80px;
-  margin: 0 20px;
-  background: black;
-  border: 2px solid white;
-  border-radius: 15px;
-  padding: 10px;
+  bottom: 95px;
+  padding: 10px 20px;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 14px;
+  background: transparent;
 }
 
-/* Bubble base */
+/* Completely Stealth Scrollbars */
+#chat::-webkit-scrollbar,
+#msg::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+#chat, #msg {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Conversation Chat Bubbles */
 .bubble {
-  padding: 10px 15px;
+  padding: 12px 18px;
   border-radius: 20px;
-  max-width: 70%;
+  max-width: 78%;
   word-wrap: break-word;
+  font-size: 16px;
+  line-height: 1.45;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-/* AI left */
+/* AI Left Bubble */
 .ai {
-  background: #333;
+  background: var(--ai-bubble);
+  color: #FFFFFF;
   align-self: flex-start;
+  border-top-left-radius: 4px;
 }
 
-/* User right */
+/* User Right Bubble */
 .user {
-  background: #222;
+  background: var(--user-blue);
+  color: #FFFFFF;
   align-self: flex-end;
-  text-align: right;
+  border-top-right-radius: 4px;
 }
 
-/* Input container */
+/* Input Area Container */
 #input-container {
   position: absolute;
-  bottom: 20px;
+  bottom: 24px;
   left: 20px;
   right: 20px;
   display: flex;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 12px;
+  background: transparent;
 }
 
-/* Textbox */
+/* Input Box Field - Clean Frame with Custom Global Font */
 #msg {
   flex: 1;
-  padding: 12px 15px;
-  border-radius: 25px;
-  border: 2px solid white;
-  background: black;
-  color: white;
+  padding: 14px 20px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1E1F22;
+  color: #FFFFFF;
   font-size: 16px;
+  font-family: 'Playfair Display', serif;
   outline: none;
   resize: none;
   line-height: 1.4;
-  min-height: 40px;
-  max-height: 120px;
+  min-height: 48px;
+  max-height: 140px;
   overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* Send button */
+#msg::placeholder {
+  color: #88888C;
+}
+
+/* Modern Send Button with Custom Cyan Ring Border */
 #send-btn {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--cyan-border); /* Slightly transparent cyan circle ring */
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: border-color 0.1s ease;
+}
+
+#send-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: #FFFFFF; /* Fills in the paper airplane graphic */
+  transition: fill 0.1s ease;
+}
+
+/* Send Button interaction feedback: Turns solid cyan on press */
+#send-btn:active {
+  border-color: var(--cyan-click);
+}
+#send-btn:active svg {
+  fill: var(--cyan-click);
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <button class="menu-toggle" onclick="toggleMenu()" aria-label="Open Navigation Drawer">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 6H20M4 12H20M4 18H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <h2>✧ Ai Chat ✧</h2>
+</header>
+
+<div id="sidebar">
+  <div class="sidebar-header">
+    <h3>Preferences</h3>
+    <button class="sidebar-close" onclick="toggleMenu()" aria-label="Close Navigation Drawer">
+      <svg viewBox="0 0 24 24">
+        <path d="M6.4 19 5 17.6l5.6-5.6L5 6.4 6.4 5l5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6Z"/>
+      </svg>
+    </button>
+  </div>
+  <div class="menu-options">
+    <button class="menu-btn" onclick="alert('User Settings Profile Clicked')">User Profile</button>
+    <button class="menu-btn" onclick="alert('System App Config Clicked')">App Preferences</button>
+    <button class="menu-btn" onclick="clearChat()">Clear History</button>
+  </div>
+</div>
+
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<div id="chat"></div>
+
+<div id="input-container">
+  <textarea id="msg" placeholder="Type message..." rows="1"></textarea>
+
+  <button id="send-btn" onclick="send()" aria-label="Send Message Submit Button">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+       <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+
+const chat = document.getElementById("chat");
+const msgBox = document.getElementById("msg");
+
+let thinkingInterval;
+let history = [];
+
+/* View Toggle Handling */
+function toggleMenu() {
+  document.body.classList.toggle("sidebar-open");
+}
+
+function clearChat() {
+  chat.innerHTML = "";
+  history = [];
+  toggleMenu();
+}
+
+function scrollChat() {
+  chat.scrollTo({
+    top: chat.scrollHeight,
+    behavior: "smooth"
+  });
+}
+
+function autoResize() {
+  msgBox.style.height = "auto";
+  msgBox.style.height = Math.min(msgBox.scrollHeight, 140) + "px";
+}
+
+msgBox.addEventListener("input", autoResize);
+
+/* Chat Message Actions Request Controller */
+async function send() {
+  const text = msgBox.value.trim();
+  if (!text) return;
+
+  chat.innerHTML += `<div class="bubble user"><b>You:</b> ${text}</div>`;
+  history.push({ role: "user", content: text });
+
+  msgBox.value = "";
+  autoResize();
+
+  const thinkingDiv = document.createElement("div");
+  thinkingDiv.className = "bubble ai";
+  thinkingDiv.innerHTML = "<b>AI
   border-radius: 50%;
   border: none;
   background: white;
