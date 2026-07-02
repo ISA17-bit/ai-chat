@@ -14,8 +14,6 @@
 <title>Personal AI Chat</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-
 /* Your Custom Color Palette */
 :root {
   --bg-color: #2C2D31;       /* Rich, Darker Gray Background */
@@ -37,10 +35,12 @@
 html, body {
   width: 100%;
   height: 100%;
-  font-family: 'Playfair Display', serif;
+  /* System font stack leveraging Apple's San Francisco natively */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-color);
   color: #FFFFFF;
   overflow: hidden;
+  letter-spacing: -0.2px; /* Emulates SF Pro clean rendering */
 }
 
 /* App Header Layout */
@@ -58,9 +58,10 @@ header {
 }
 
 h2 {
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 600;
   color: #FFFFFF;
+  letter-spacing: -0.1px;
 }
 
 /* Menu Toggle Button */
@@ -119,8 +120,8 @@ body.sidebar-open #sidebar {
 }
 
 .sidebar-header h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .sidebar-close {
@@ -157,6 +158,7 @@ body.sidebar-open #sidebar {
   text-align: left;
   font-size: 15px;
   font-family: inherit;
+  font-weight: 500;
   cursor: pointer;
   transition: background 0.1s, color 0.1s, border-color 0.1s;
 }
@@ -223,9 +225,8 @@ body.sidebar-open #overlay {
   border-radius: 20px;
   max-width: 78%;
   word-wrap: break-word;
-  font-size: 16px;
-  line-height: 1.45;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 /* AI Left Bubble */
@@ -259,13 +260,13 @@ body.sidebar-open #overlay {
 /* Input Box Field - Clean Frame with Custom Global Font */
 #msg {
   flex: 1;
-  padding: 14px 20px;
+  padding: 13px 20px;
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: #1E1F22;
   color: #FFFFFF;
   font-size: 16px;
-  font-family: 'Playfair Display', serif;
+  font-family: inherit; /* Natively inherits San Francisco stack */
   outline: none;
   resize: none;
   line-height: 1.4;
@@ -447,4 +448,3 @@ autoResize();
 
 </body>
 </html>
-
