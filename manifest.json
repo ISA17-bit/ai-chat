@@ -1,7 +1,7 @@
 {
-  "name": "Personal AI Chat",
-  "short_name": "AI Chat",
-  "description": "A private AI chat interface",
+  "name": "Nova ai custom",
+  "short_name": "Nova custom",
+  "description": " AI chat interface",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#111111",
